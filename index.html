@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Now</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+width: 320px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    input {
+      width: 70%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #4facfe;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #00c6ff;
+    }
+.result {
+      margin-top: 15px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🌤 Weather Now</h2>
+    <input type="text" id="city" placeholder="Enter city name">
+    <br />
+    <button onclick="getWeather()">Check Weather</button>
+    <div class="result" id="result"></div>
+  </div>
+
+<script>
+    async function getWeather() {
+      const city = document.getElementById("city").value;
+      if (!city) {
+        alert("Please enter a city name!");
+        return;
+      }
+
+      try {
+        // Step 1: Get city coordinates from Open-Meteo Geocoding API
+        const geoRes = await fetch(https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1);
+        const geoData = await geoRes.json();
+
+        if (!geoData.results || geoData.results.length === 0) {
+          throw new Error("City not found");
+        }
+
+        const { latitude, longitude, name, country } = geoData.results[0];
+
+        // Step 2: Get current weather from Open-Meteo API
+        const weatherRes = await fetch(
+          https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true
+        );
+        const weatherData = await  weatherRes.json();
+        const weather = weatherData.current_weather;
+
+        document.getElementById("result").innerHTML = `
+          <p><b>${name}, ${country}</b></p>
+          <p>🌡 Temp: ${weather.temperature}°C</p>
+          <p>💨 Wind: ${weather.windspeed} km/h</p>
+          <p>🧭 Direction: ${weather.winddirection}°</p> `;
+      } catch (error) {
+        document.getElementById("result").innerHTML = <p style="color:red;">${error.message}</p>;
+      }
+    }
+  </script>
+</body>
+</html>
